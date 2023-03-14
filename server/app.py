@@ -14,25 +14,71 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
+
 @app.route('/')
 def index():
     return '<h1>Bakery GET API</h1>'
 
+
 @app.route('/bakeries')
 def bakeries():
-    return ''
+
+    bakeries = Bakery.query.all()
+    bakeries_serialized = [bakery.to_dict() for bakery in bakeries]
+
+    res = make_response(
+        jsonify(bakeries_serialized),
+        200
+    )
+
+    res.headers['Content-Type'] = 'application/json'
+    return res
+
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+    bakery = Bakery.query.filter_by(id=id).first()
+    bakery_serialized = bakery.to_dict()
+
+    res = make_response(
+        jsonify(bakery_serialized),
+        200
+    )
+
+    res.headers['Content-Type'] = 'application/json'
+    return res
+
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    return ''
+    baked_goods_by_price = BakedGood.query.order_by(BakedGood.price).all()
+    baked_goods_by_price_serialized = [
+        bg.to_dict() for bg in baked_goods_by_price
+    ]
+
+    res = make_response(
+        jsonify(baked_goods_by_price_serialized),
+        200
+    )
+
+    res.headers['Content-Type'] = 'application/json'
+    return res
+
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+    most_expensive = BakedGood.query.order_by(
+        BakedGood.price.desc()).limit(1).first()
+    most_expensive_serialized = most_expensive.to_dict()
+
+    res = make_response(
+        jsonify(most_expensive_serialized),
+        200
+    )
+
+    res.headers['Content-Type'] = 'application/json'
+    return res
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
